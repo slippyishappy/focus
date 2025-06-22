@@ -1,0 +1,71 @@
+body {
+    width: 200px;
+    padding: 0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .container {
+    padding: 20px;
+  }
+  
+  h2 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: #333;
+  }
+  
+  .status {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  
+  .status.on {
+    color: #e74c3c;
+    font-weight: bold;
+  }
+  
+  .status.off {
+    color: #27ae60;
+  }
+  
+  button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .toggle-btn.on {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .toggle-btn.off {
+    background-color: #27ae60;
+    color: white;
+  }
+  
+  .toggle-btn:hover {
+    opacity: 0.8;
+  }
+  
+  .blocked-sites {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .blocked-sites h4 {
+    margin: 0 0 5px 0;
+  }
+  
+  .blocked-sites ul {
+    margin: 0;
+    padding-left: 15px;
+  }
+  
