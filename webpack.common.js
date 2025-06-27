@@ -1,6 +1,7 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
+const Dotenv = require("dotenv-webpack")
 
 module.exports = {
   entry: {
@@ -13,19 +14,13 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     clean: true,
   },
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-        },
-      },
-    },
-  },
   plugins: [
+    new Dotenv({
+      path: "./.env",
+      safe: false,
+      systemvars: true,
+      silent: false,
+    }),
     new HtmlWebpackPlugin({
       template: "./src/popup.html",
       filename: "popup.html",
@@ -34,7 +29,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: "manifest.json",
+          from: "src/manifest.json",
           to: "manifest.json",
         },
         {

@@ -1,71 +1,220 @@
 body {
-    width: 200px;
-    padding: 0;
-    margin: 0;
-    font-family: Arial, sans-serif;
+  width: 320px;
+  padding: 0;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  padding: 20px;
+}
+
+h2 {
+  margin: 0 0 15px 0;
+  text-align: center;
+  color: #333;
+}
+
+h3 {
+  margin: 20px 0 10px 0;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.status {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.status.on {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.status.off {
+  color: #27ae60;
+}
+
+button {
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn {
+  width: 100%;
+  padding: 10px;
+}
+
+.toggle-btn.on {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.toggle-btn.off {
+  background-color: #27ae60;
+  color: white;
+}
+
+.toggle-btn:hover {
+  opacity: 0.8;
+}
+
+/* Focus Area Styles */
+.focus-area-section {
+  margin: 20px 0;
+}
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#focusAreaInput {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+#focusAreaInput:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+.help-text {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.add-btn {
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 12px;
+  min-width: 50px;
+}
+
+.add-btn:hover {
+  background-color: #45a049;
+}
+
+.add-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.focus-areas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.focus-area-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f8ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #1976d2;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  
-  .container {
-    padding: 20px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  h2 {
-    margin: 0 0 15px 0;
-    text-align: center;
-    color: #333;
+}
+
+.focus-area-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.remove-btn {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.remove-btn:hover {
+  background-color: #ff5252;
+  transform: scale(1.1);
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+  padding: 20px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.empty-state.hidden {
+  display: none;
+}
+
+.blocked-sites {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #666;
+}
+
+.blocked-sites h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+}
+
+.blocked-sites ul {
+  margin: 0;
+  padding-left: 15px;
+}
+
+.blocked-sites li {
+  margin-bottom: 2px;
+}
+
+/* Success animation */
+.success-flash {
+  animation: successFlash 0.5s ease-out;
+}
+
+@keyframes successFlash {
+  0% {
+    background-color: #4caf50;
   }
-  
-  .status {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 14px;
+  100% {
+    background-color: #f0f8ff;
   }
-  
-  .status.on {
-    color: #e74c3c;
-    font-weight: bold;
-  }
-  
-  .status.off {
-    color: #27ae60;
-  }
-  
-  button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .toggle-btn.on {
-    background-color: #e74c3c;
-    color: white;
-  }
-  
-  .toggle-btn.off {
-    background-color: #27ae60;
-    color: white;
-  }
-  
-  .toggle-btn:hover {
-    opacity: 0.8;
-  }
-  
-  .blocked-sites {
-    margin-top: 15px;
-    font-size: 12px;
-    color: #666;
-  }
-  
-  .blocked-sites h4 {
-    margin: 0 0 5px 0;
-  }
-  
-  .blocked-sites ul {
-    margin: 0;
-    padding-left: 15px;
-  }
-  
+}
