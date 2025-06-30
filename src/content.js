@@ -520,31 +520,74 @@ function showCompleteBlockMessage() {
   `
 }
 
+// Get site toggle state for current domain
+function getSiteToggleState(domain, siteToggles) {
+  // Check for exact domain match or www variant
+  const possibleDomains = [
+    domain,
+    domain.startsWith('www.') ? domain.substring(4) : `www.${domain}`,
+  ]
+  
+  for (const possibleDomain of possibleDomains) {
+    if (siteToggles.hasOwnProperty(possibleDomain)) {
+      return siteToggles[possibleDomain]
+    }
+  }
+  
+  // Return default state based on site type
+  if (COMPLETELY_BLOCKED_SITES.includes(domain) || 
+      COMPLETELY_BLOCKED_SITES.includes(`www.${domain}`) ||
+      COMPLETELY_BLOCKED_SITES.includes(domain.replace('www.', ''))) {
+    return 'blocked'
+  }
+  
+  if (CONTENT_EVALUATED_SITES.includes(domain) || 
+      CONTENT_EVALUATED_SITES.includes(`www.${domain}`) ||
+      CONTENT_EVALUATED_SITES.includes(domain.replace('www.', ''))) {
+    return 'smart'
+  }
+  
+  return 'allowed'
+}
+
 // Main function to check and handle focus mode
 async function handleFocusMode() {
   try {
     console.log("Handling focus mode for:", window.location.href)
 
-    // Get focus mode state and focus areas
-    const result = await window.chrome.storage.local.get(["focusMode", "focusAreas"])
+    // Get focus mode state, focus areas, and site toggles
+    const result = await window.chrome.storage.local.get(["focusMode", "focusAreas", "siteToggles"])
     const focusMode = result.focusMode || false
     const focusAreas = result.focusAreas || []
+    const siteToggles = result.siteToggles || {}
 
-    console.log("Focus mode:", focusMode, "Focus areas:", focusAreas)
+    console.log("Focus mode:", focusMode, "Focus areas:", focusAreas, "Site toggles:", siteToggles)
 
     if (!focusMode) {
       return // Focus mode is off, do nothing
     }
 
-    // Check if site should be completely blocked
-    if (shouldCompletelyBlockSite()) {
+    // Get current domain and its toggle state
+    const currentDomain = window.location.hostname.toLowerCase()
+    const siteToggleState = getSiteToggleState(currentDomain, siteToggles)
+    
+    console.log("Current domain:", currentDomain, "Toggle state:", siteToggleState)
+
+    // If site is set to 'allowed', don't block or evaluate
+    if (siteToggleState === 'allowed') {
+      console.log("Site is set to allowed, skipping blocking/evaluation")
+      return
+    }
+
+    // If site is set to 'blocked' or should be completely blocked by default
+    if (siteToggleState === 'blocked' || shouldCompletelyBlockSite()) {
       console.log("Site should be completely blocked")
       showCompleteBlockMessage()
       return
     }
 
-    // Check if site should have content evaluated AND we're on specific content
-    if (shouldEvaluateContent() && isOnSpecificContent()) {
+    // If site is set to 'smart' or should have content evaluated by default
+    if ((siteToggleState === 'smart' || shouldEvaluateContent()) && isOnSpecificContent()) {
       console.log("Site should have content evaluated and we're on specific content")
 
       // Wait a bit for page content to load

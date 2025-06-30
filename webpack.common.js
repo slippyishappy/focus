@@ -1,6 +1,7 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const Dotenv = require("dotenv-webpack")
 
 module.exports = {
@@ -20,6 +21,9 @@ module.exports = {
       safe: false,
       systemvars: true,
       silent: false,
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
     }),
     new HtmlWebpackPlugin({
       template: "./src/popup.html",
@@ -46,7 +50,18 @@ module.exports = {
     rules: [
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [require("tailwindcss"), require("autoprefixer")],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.html$/i,
@@ -56,6 +71,19 @@ module.exports = {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: "asset/resource",
       },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: "asset/resource",
+        generator: {
+          filename: "fonts/[name][ext]",
+        },
+      },
     ],
+  },
+  resolve: {
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
   },
 }

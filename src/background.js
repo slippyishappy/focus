@@ -1,7 +1,7 @@
 // Initialize focus mode state when extension is installed
 chrome.runtime.onInstalled.addListener(async () => {
   try {
-    const result = await chrome.storage.local.get(["focusMode", "focusAreas"])
+    const result = await chrome.storage.local.get(["focusMode", "focusAreas", "siteToggles"])
     if (result.focusMode === undefined) {
       await chrome.storage.local.set({ focusMode: false })
       console.log("Focus Mode initialized to OFF")
@@ -9,6 +9,10 @@ chrome.runtime.onInstalled.addListener(async () => {
     if (result.focusAreas === undefined) {
       await chrome.storage.local.set({ focusAreas: [] })
       console.log("Focus Areas initialized to empty array")
+    }
+    if (result.siteToggles === undefined) {
+      await chrome.storage.local.set({ siteToggles: {} })
+      console.log("Site Toggles initialized to empty object")
     }
   } catch (error) {
     console.error("Error initializing extension:", error)
@@ -131,6 +135,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === "focusAreasChanged") {
     console.log("Focus Areas changed to:", message.focusAreas)
+  }
+
+  if (message.action === "siteTogglesChanged") {
+    console.log("Site Toggles changed to:", message.siteToggles)
   }
 
   if (message.action === "getFocusMode") {
