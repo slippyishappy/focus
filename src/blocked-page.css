@@ -1,0 +1,184 @@
+/* Blocked page and overlay styles - Pure CSS without Tailwind dependencies */
+/* Uses system fonts for CSP compliance */
+
+/* Base styles */
+body, html {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Blocked page body */
+.blocked-page-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+/* Main container for blocked page content */
+.blocked-page-container {
+  text-align: center;
+  padding: 3rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  max-width: 32rem;
+  margin: 0 1.5rem;
+}
+
+/* Blocked page title */
+.blocked-page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+/* Blocked page description */
+.blocked-page-description {
+  font-size: 1rem;
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+}
+
+.blocked-page-subtitle {
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+}
+
+/* Domain highlighting */
+.blocked-page-domain {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Icon styling */
+.blocked-page-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+}
+
+.blocked-page-icon-red {
+  background-color: #ef4444;
+  color: white;
+}
+
+.blocked-page-icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Motivational quote box */
+.blocked-page-quote {
+  font-style: italic;
+  margin: 2rem 0;
+  padding: 1rem;
+  background-color: #eff6ff;
+  border-radius: 0.375rem;
+  border-left: 4px solid #dbeafe;
+}
+
+.blocked-page-quote-text {
+  color: #1e3a8a;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Button container */
+.blocked-page-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+/* Primary button */
+.blocked-page-btn {
+  border: none;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blocked-page-btn-primary {
+  background-color: #111827;
+  color: white;
+}
+
+.blocked-page-btn-primary:hover {
+  background-color: #1f2937;
+  transform: translateY(-1px);
+}
+
+.blocked-page-btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #6b7280;
+}
+
+/* Secondary button */
+.blocked-page-btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.blocked-page-btn-secondary:hover {
+  background-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.blocked-page-btn-secondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #6b7280;
+}
+
+/* Animation keyframes */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply animations */
+.focus-overlay-container,
+.blocked-page-container {
+  animation: slide-up 0.3s ease-out;
+}
+
+#focus-mode-overlay {
+  animation: fade-in 0.2s ease-out;
+}

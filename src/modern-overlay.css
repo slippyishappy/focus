@@ -1,0 +1,245 @@
+/* Modern styles for overlays and blocked pages */
+
+/* Overlay styles */
+#focus-mode-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(55, 53, 47, 0.95) !important;
+    z-index: 2147483647 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  }
+  
+  .focus-overlay-container {
+    background: white !important;
+    border-radius: 8px !important;
+    border: 1px solid #e9e9e7 !important;
+    padding: 48px !important;
+    max-width: 600px !important;
+    text-align: center !important;
+    color: #37352f !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    margin: 24px !important;
+  }
+  
+  .focus-icon {
+    font-size: 48px !important;
+    margin-bottom: 24px !important;
+    opacity: 0.8 !important;
+  }
+  
+  .focus-overlay-content h1 {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    margin-bottom: 32px !important;
+    color: #37352f !important;
+  }
+  
+  .content-info {
+    background: #f7f6f3 !important;
+    padding: 24px !important;
+    border-radius: 6px !important;
+    margin-bottom: 32px !important;
+    text-align: left !important;
+    border: 1px solid #e9e9e7 !important;
+  }
+  
+  .content-info p {
+    margin: 12px 0 !important;
+    font-size: 14px !important;
+    color: #37352f !important;
+  }
+  
+  .focus-areas-display {
+    margin: 12px 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .focus-tag {
+    display: inline-block !important;
+    background-color: #e9e9e7 !important;
+    color: #37352f !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+  }
+  
+  .motivational-quote {
+    font-style: italic !important;
+    margin: 32px 0 !important;
+    padding: 16px !important;
+    background: #f7f6f3 !important;
+    border-radius: 6px !important;
+    border-left: 3px solid #d9d9d6 !important;
+    color: #787774 !important;
+  }
+  
+  .overlay-buttons {
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: center !important;
+    margin-top: 32px !important;
+  }
+  
+  .overlay-btn {
+    padding: 8px 16px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .back-btn {
+    background: #37352f !important;
+    color: white !important;
+  }
+  
+  .back-btn:hover {
+    background: #2f2e2a !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  .continue-btn {
+    background: #e9e9e7 !important;
+    color: #37352f !important;
+  }
+  
+  .continue-btn:disabled {
+    background: #f1f1ef !important;
+    color: #a8a29e !important;
+    cursor: not-allowed !important;
+  }
+  
+  .continue-btn:not(:disabled):hover {
+    background: #d9d9d6 !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  .justification-section {
+    margin-top: 32px !important;
+    text-align: left !important;
+  }
+  
+  .justification-section h3 {
+    margin-bottom: 16px !important;
+    text-align: center !important;
+    color: #37352f !important;
+  }
+  
+  .justification-section textarea {
+    width: 100% !important;
+    height: 100px !important;
+    padding: 12px !important;
+    border: 1px solid #e9e9e7 !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    resize: vertical !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+  }
+  
+  .justify-btn {
+    background: #37352f !important;
+    color: white !important;
+    width: 100% !important;
+  }
+  
+  .justify-btn:hover {
+    background: #2f2e2a !important;
+  }
+  
+  /* Blocked page styles */
+  .blocked-page-body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: #f7f6f3;
+    color: #37352f;
+  }
+  
+  .blocked-page-container {
+    text-align: center;
+    padding: 48px 32px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e9e9e7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 480px;
+    margin: 24px;
+  }
+  
+  .blocked-page-h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #37352f;
+  }
+  
+  .blocked-page-icon {
+    font-size: 48px;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+  
+  .blocked-page-p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    color: #787774;
+  }
+  
+  .blocked-page-site-name {
+    font-weight: 600;
+    color: #37352f;
+  }
+  
+  .blocked-page-motivational {
+    font-style: italic;
+    margin-top: 32px;
+    padding: 16px;
+    background: #f7f6f3;
+    border-radius: 6px;
+    border-left: 3px solid #d9d9d6;
+    color: #787774;
+  }
+  
+  .blocked-page-button {
+    background: #37352f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 8px;
+  }
+  
+  .blocked-page-button:hover {
+    background: #2f2e2a;
+    transform: translateY(-1px);
+  }
+  
+  .blocked-page-secondary-btn {
+    background: #e9e9e7;
+    color: #37352f;
+  }
+  
+  .blocked-page-secondary-btn:hover {
+    background: #d9d9d6;
+  }  

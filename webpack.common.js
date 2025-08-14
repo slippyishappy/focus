@@ -43,6 +43,14 @@ module.exports = {
             ignore: ["**/.DS_Store"],
           },
         },
+        {
+          from: "src/modern-overlay.css",
+          to: "modern-overlay.css",
+        },
+        {
+          from: "src/blocked-page.css",
+          to: "blocked-page.css",
+        },
       ],
     }),
   ],

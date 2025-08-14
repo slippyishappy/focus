@@ -38,16 +38,17 @@ Respond with only "yes" if the content is relevant and helpful to at least one f
 async function evaluateContentWithGemini(content, focusAreas) {
   const API_KEY = process.env.GEMINI_API_KEY
 
-  if (!API_KEY) {
-    console.error("Gemini API key not found")
+  if (!API_KEY || API_KEY === 'your_api_key_here') {
+    console.error("Gemini API key not found or not configured")
     return isContentRelevantFallback(content, focusAreas)
   }
 
   const prompt = prepareGeminiPrompt(content, focusAreas)
 
   try {
+    // Updated to use the correct Gemini API v1 endpoint with gemini-1.5-flash model
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -64,6 +65,8 @@ async function evaluateContentWithGemini(content, focusAreas) {
     )
 
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`API request failed: ${response.status}`, errorText)
       throw new Error(`API request failed: ${response.status}`)
     }
 
@@ -173,6 +176,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       })
 
     return true // Keep message channel open for async response
+  }
+
+  if (message.action === "closeTab") {
+    // Close the current tab
+    if (sender.tab && sender.tab.id) {
+      try {
+        chrome.tabs.remove(sender.tab.id)
+        console.log("Tab closed successfully")
+      } catch (error) {
+        console.error("Error closing tab:", error)
+      }
+    }
   }
 })
 

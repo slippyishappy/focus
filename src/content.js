@@ -1,3 +1,19 @@
+// Function to safely add CSS link
+function addStylesheet() {
+  if (document.head) {
+    const blockedPageStylesLink = document.createElement("link")
+    blockedPageStylesLink.rel = "stylesheet"
+    blockedPageStylesLink.href = window.chrome.runtime.getURL("blocked-page.css")
+    document.head.appendChild(blockedPageStylesLink)
+  } else {
+    // If document.head is not available yet, wait for it
+    setTimeout(addStylesheet, 10)
+  }
+}
+
+// Add stylesheet when DOM is ready
+addStylesheet()
+
 // List of sites that get completely blocked (Stage 1 behavior)
 const COMPLETELY_BLOCKED_SITES = [
   "facebook.com",
@@ -56,44 +72,50 @@ function pauseYouTubeVideo() {
   const hostname = window.location.hostname.toLowerCase()
 
   if (hostname.includes("youtube.com")) {
-    // Try multiple methods to pause the video
+    try {
+      // Try multiple methods to pause the video
 
-    // Method 1: Find video element directly
-    const videoElement = document.querySelector("video")
-    if (videoElement && !videoElement.paused) {
-      videoElement.pause()
-      console.log("Video paused using video element")
-      return true
-    }
+      // Method 1: Find video element directly
+      const videoElement = document.querySelector("video")
+      if (videoElement && !videoElement.paused) {
+        videoElement.pause()
+        console.log("Video paused using video element")
+        return true
+      }
 
-    // Method 2: Try YouTube's player API
-    if (window.ytplayer && window.ytplayer.pauseVideo) {
-      window.ytplayer.pauseVideo()
-      console.log("Video paused using YouTube player API")
-      return true
-    }
+      // Method 2: Try YouTube's player API
+      if (window.ytplayer && window.ytplayer.pauseVideo) {
+        window.ytplayer.pauseVideo()
+        console.log("Video paused using YouTube player API")
+        return true
+      }
 
-    // Method 3: Try to click the pause button
-    const pauseButton = document.querySelector(".ytp-play-button[aria-label*='Pause']")
-    if (pauseButton) {
-      pauseButton.click()
-      console.log("Video paused by clicking pause button")
-      return true
-    }
+      // Method 3: Try to click the pause button
+      const pauseButton = document.querySelector(".ytp-play-button[aria-label*='Pause']")
+      if (pauseButton) {
+        pauseButton.click()
+        console.log("Video paused by clicking pause button")
+        return true
+      }
 
-    // Method 4: Try keyboard shortcut (spacebar)
-    const playerContainer = document.querySelector("#movie_player, .html5-video-player")
-    if (playerContainer) {
-      const spaceEvent = new KeyboardEvent("keydown", {
-        key: " ",
-        code: "Space",
-        keyCode: 32,
-        which: 32,
-        bubbles: true,
-      })
-      playerContainer.dispatchEvent(spaceEvent)
-      console.log("Attempted to pause video with spacebar")
-      return true
+      // Method 4: Try keyboard shortcut (spacebar)
+      const playerContainer = document.querySelector("#movie_player, .html5-video-player")
+      if (playerContainer) {
+        const spaceEvent = new KeyboardEvent("keydown", {
+          key: " ",
+          code: "Space",
+          keyCode: 32,
+          which: 32,
+          bubbles: true,
+        })
+        playerContainer.dispatchEvent(spaceEvent)
+        console.log("Attempted to pause video with spacebar")
+        return true
+      }
+    } catch (error) {
+      console.error("Error pausing video:", error)
+      // Don't throw the error, just return false
+      return false
     }
   }
 
@@ -166,212 +188,199 @@ function extractPageContent() {
 // Format focus areas for display
 function formatFocusAreasForDisplay(focusAreas) {
   if (!focusAreas || focusAreas.length === 0) {
-    return "None set"
+    return `<span style="padding: 0.375rem 0.75rem; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; border-radius: 9999px;">None set</span>`
   }
 
-  return focusAreas.map((area) => `<span class="focus-tag">${area}</span>`).join("")
+  return focusAreas.map((area) => `<span style="padding: 0.375rem 0.75rem; background: #dbeafe; color: #1e40af; font-size: 0.875rem; font-weight: 500; border-radius: 9999px;">${area}</span>`).join(" ")
 }
 
 // Create motivational overlay
 function createMotivationalOverlay(content, focusAreas) {
-  // Remove any existing overlay
-  const existingOverlay = document.getElementById("focus-mode-overlay")
-  if (existingOverlay) {
-    existingOverlay.remove()
-  }
+  try {
+    // Wait for DOM to be ready before creating overlay
+    if (!document.body || !document.head) {
+      setTimeout(() => createMotivationalOverlay(content, focusAreas), 100)
+      return
+    }
 
-  // Pause video before showing overlay
-  const videoPaused = pauseYouTubeVideo()
-  if (videoPaused) {
-    console.log("Video paused before showing overlay")
-  }
+    // Remove any existing overlay
+    const existingOverlay = document.getElementById("focus-mode-overlay")
+    if (existingOverlay) {
+      existingOverlay.remove()
+    }
 
-  const focusAreasDisplay = formatFocusAreasForDisplay(focusAreas)
+    // Pause video BEFORE creating overlay to avoid conflicts
+    const videoPaused = pauseYouTubeVideo()
+    if (videoPaused) {
+      console.log("Video paused before showing overlay")
+    }
+
+    // Small delay to let YouTube's observers settle
+    setTimeout(() => {
+      createOverlayDOM(content, focusAreas)
+    }, 250)
+    
+  } catch (error) {
+    console.error("Error creating motivational overlay:", error)
+    // Try again with a longer delay
+    setTimeout(() => createMotivationalOverlay(content, focusAreas), 1000)
+  }
+}
+
+// Separate function to create the actual overlay DOM
+function createOverlayDOM(content, focusAreas) {
+  try {
+    const focusAreasDisplay = formatFocusAreasForDisplay(focusAreas)
 
   const overlay = document.createElement("div")
   overlay.id = "focus-mode-overlay"
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483647;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `
   overlay.innerHTML = `
-    <div class="focus-overlay-container">
-      <div class="focus-overlay-content">
-        <div class="focus-icon">🎯</div>
-        <h1>Content Not Aligned with Your Focus</h1>
-        <div class="content-info">
-          <p><strong>Your Focus Areas:</strong></p>
-          <div class="focus-areas-display">${focusAreasDisplay}</div>
-          <p><strong>Current Content:</strong> "${content}"</p>
+    <div style="
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #f3f4f6;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-width: 40rem;
+      margin: 0 1.5rem;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    ">
+      <div style="padding: 2rem; text-align: center;">
+        <!-- Icon and Header -->
+        <div style="
+          width: 4rem;
+          height: 4rem;
+          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 1.5rem auto;
+        ">
+          <svg style="width: 2rem; height: 2rem; color: white;" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+          </svg>
         </div>
-        <div class="motivational-quote">
-          <p>"Success is the result of preparation, hard work, and learning from failure." - Colin Powell</p>
+        
+        <h1 style="font-size: 1.5rem; font-weight: 600; color: #111827; margin-bottom: 1.5rem;">Content Not Aligned with Your Focus</h1>
+        
+        <!-- Content Info -->
+        <div style="
+          background: #f9fafb;
+          border: 1px solid #f3f4f6;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin-bottom: 1.5rem;
+          text-align: left;
+        ">
+          <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Your Focus Areas:</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">${focusAreasDisplay}</div>
+          </div>
+          <div>
+            <p style="font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem;">Current Content:</p>
+            <p style="font-size: 0.875rem; color: #4b5563;">"${content}"</p>
+          </div>
         </div>
-        <div class="overlay-buttons">
-          <button id="goBackBtn" class="overlay-btn back-btn">Take Me Back</button>
-          <button id="continueBtn" class="overlay-btn continue-btn" disabled>
+        
+        <!-- Motivational Quote -->
+        <div style="
+          background: #eff6ff;
+          border: 1px solid #dbeafe;
+          border-radius: 12px;
+          padding: 1rem;
+          margin-bottom: 1.5rem;
+        ">
+          <p style="font-size: 0.875rem; font-style: italic; color: #1e3a8a;">"Success is the result of preparation, hard work, and learning from failure." - Colin Powell</p>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 0.75rem; justify-content: center; margin-bottom: 1.5rem;">
+          <button id="goBackBtn" style="
+            padding: 0.625rem 1.5rem;
+            background: #111827;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          ">
+            Take Me Back
+          </button>
+          <button id="continueBtn" style="
+            padding: 0.625rem 1.5rem;
+            background: #e5e7eb;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 12px;
+            border: none;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transition: all 0.2s;
+          " disabled>
             Continue Anyway (<span id="countdown">120</span>s)
           </button>
         </div>
-        <div class="justification-section" id="justificationSection" style="display: none;">
-          <h3>Why do you need to view this content?</h3>
-          <textarea id="justificationText" placeholder="Explain why this content is necessary for your current focus..."></textarea>
-          <button id="submitJustification" class="overlay-btn justify-btn">Submit & Continue</button>
+        
+        <!-- Justification Section -->
+        <div id="justificationSection" style="display: none;">
+          <div style="border-top: 1px solid #f3f4f6; padding-top: 1.5rem;">
+            <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-bottom: 1rem;">Why do you need to view this content?</h3>
+            <textarea id="justificationText" placeholder="Explain why this content is necessary for your current focus..." style="
+              width: 100%;
+              height: 6rem;
+              padding: 0.75rem;
+              font-size: 0.875rem;
+              border: 1px solid #d1d5db;
+              border-radius: 12px;
+              resize: none;
+              margin-bottom: 1rem;
+              box-sizing: border-box;
+            "></textarea>
+            <button id="submitJustification" style="
+              width: 100%;
+              padding: 0.625rem 1.5rem;
+              background: #2563eb;
+              color: white;
+              font-size: 0.875rem;
+              font-weight: 500;
+              border-radius: 12px;
+              border: none;
+              cursor: pointer;
+              transition: background-color 0.2s;
+            ">
+              Submit & Continue
+            </button>
+          </div>
         </div>
       </div>
     </div>
   `
 
-  // Add styles
-  const style = document.createElement("style")
-  style.textContent = `
-    #focus-mode-overlay {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      background: rgba(0, 0, 0, 0.95) !important;
-      z-index: 2147483647 !important;
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      font-family: Arial, sans-serif !important;
-    }
-    
-    .focus-overlay-container {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-      border-radius: 20px !important;
-      padding: 40px !important;
-      max-width: 600px !important;
-      text-align: center !important;
-      color: white !important;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
-    }
-    
-    .focus-icon {
-      font-size: 4em !important;
-      margin-bottom: 20px !important;
-    }
-    
-    .focus-overlay-content h1 {
-      font-size: 2.2em !important;
-      margin-bottom: 30px !important;
-      color: #fff !important;
-    }
-    
-    .content-info {
-      background: rgba(255, 255, 255, 0.1) !important;
-      padding: 20px !important;
-      border-radius: 10px !important;
-      margin-bottom: 30px !important;
-      text-align: left !important;
-    }
-    
-    .content-info p {
-      margin: 10px 0 !important;
-      font-size: 1.1em !important;
-    }
-    
-    .focus-areas-display {
-      margin: 10px 0 !important;
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 8px !important;
-    }
-    
-    .focus-tag {
-      display: inline-block !important;
-      background-color: rgba(255, 255, 255, 0.2) !important;
-      color: #fff !important;
-      padding: 4px 12px !important;
-      border-radius: 15px !important;
-      font-size: 0.9em !important;
-      border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    }
-    
-    .motivational-quote {
-      font-style: italic !important;
-      margin: 30px 0 !important;
-      padding: 20px !important;
-      background: rgba(255, 255, 255, 0.1) !important;
-      border-radius: 10px !important;
-      border-left: 4px solid #ffeb3b !important;
-    }
-    
-    .overlay-buttons {
-      display: flex !important;
-      gap: 20px !important;
-      justify-content: center !important;
-      margin-top: 30px !important;
-    }
-    
-    .overlay-btn {
-      padding: 15px 30px !important;
-      border: none !important;
-      border-radius: 25px !important;
-      font-size: 1.1em !important;
-      cursor: pointer !important;
-      transition: all 0.3s ease !important;
-      font-weight: bold !important;
-    }
-    
-    .back-btn {
-      background: #4caf50 !important;
-      color: white !important;
-    }
-    
-    .back-btn:hover {
-      background: #45a049 !important;
-      transform: translateY(-2px) !important;
-    }
-    
-    .continue-btn {
-      background: #ff6b6b !important;
-      color: white !important;
-    }
-    
-    .continue-btn:disabled {
-      background: #ccc !important;
-      cursor: not-allowed !important;
-    }
-    
-    .continue-btn:not(:disabled):hover {
-      background: #ff5252 !important;
-      transform: translateY(-2px) !important;
-    }
-    
-    .justification-section {
-      margin-top: 30px !important;
-      text-align: left !important;
-    }
-    
-    .justification-section h3 {
-      margin-bottom: 15px !important;
-      text-align: center !important;
-    }
-    
-    .justification-section textarea {
-      width: 100% !important;
-      height: 100px !important;
-      padding: 15px !important;
-      border: none !important;
-      border-radius: 10px !important;
-      font-size: 1em !important;
-      resize: vertical !important;
-      margin-bottom: 15px !important;
-      box-sizing: border-box !important;
-    }
-    
-    .justify-btn {
-      background: #ff9800 !important;
-      color: white !important;
-      width: 100% !important;
-    }
-    
-    .justify-btn:hover {
-      background: #f57c00 !important;
-    }
-  `
-
-  document.head.appendChild(style)
-  document.body.appendChild(overlay)
+  // Safely append overlay to DOM
+  if (document.body) {
+    document.body.appendChild(overlay)
+  } else {
+    // If body doesn't exist yet, append to document.documentElement
+    document.documentElement.appendChild(overlay)
+  }
 
   // Handle button clicks
   const goBackBtn = document.getElementById("goBackBtn")
@@ -417,107 +426,163 @@ function createMotivationalOverlay(content, focusAreas) {
     // Remove overlay and allow access
     overlay.remove()
   })
+  } catch (error) {
+    console.error("Error creating overlay DOM:", error)
+    // If there's an error, try to create a simpler overlay
+    createSimpleOverlay(content, focusAreas)
+  }
+}
+
+// Simple fallback overlay function
+function createSimpleOverlay(content, focusAreas) {
+  try {
+    const overlay = document.createElement("div")
+    overlay.id = "focus-mode-overlay"
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2147483647;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `
+    
+    overlay.innerHTML = `
+      <div style="
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 500px;
+        margin: 20px;
+      ">
+        <h2 style="margin: 0 0 20px 0; color: #333;">Content Not Aligned with Your Focus</h2>
+        <p style="margin: 0 0 20px 0; color: #666;">This content doesn't match your current focus areas.</p>
+        <button id="simple-go-back" style="
+          background: #333;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 6px;
+          cursor: pointer;
+          margin-right: 10px;
+        ">Go Back</button>
+        <button id="simple-continue" style="
+          background: #ccc;
+          color: #333;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 6px;
+          cursor: pointer;
+        ">Continue Anyway</button>
+      </div>
+    `
+    
+    document.body.appendChild(overlay)
+    
+    document.getElementById("simple-go-back").addEventListener("click", () => {
+      window.history.back()
+    })
+    
+    document.getElementById("simple-continue").addEventListener("click", () => {
+      overlay.remove()
+    })
+    
+  } catch (error) {
+    console.error("Error creating simple overlay:", error)
+  }
 }
 
 // Show complete block message (Stage 1 behavior)
 function showCompleteBlockMessage() {
-  document.documentElement.innerHTML = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Site Blocked - Focus Mode</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          margin: 0;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-        }
-        .container {
-          text-align: center;
-          padding: 40px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 15px;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          max-width: 500px;
-        }
-        h1 {
-          font-size: 2.5em;
-          margin-bottom: 20px;
-          color: #fff;
-        }
-        .icon {
-          font-size: 4em;
-          margin-bottom: 20px;
-        }
-        p {
-          font-size: 1.2em;
-          line-height: 1.6;
-          margin-bottom: 30px;
-          opacity: 0.9;
-        }
-        .site-name {
-          font-weight: bold;
-          color: #ffeb3b;
-        }
-        .motivational {
-          font-style: italic;
-          margin-top: 20px;
-          padding: 20px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          border-left: 4px solid #ffeb3b;
-        }
-        button {
-          background: #ff6b6b;
-          color: white;
-          border: none;
-          padding: 12px 30px;
-          font-size: 1.1em;
-          border-radius: 25px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          margin: 10px;
-        }
-        button:hover {
-          background: #ff5252;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-        }
-        .turn-off-btn {
-          background: #4caf50;
-        }
-        .turn-off-btn:hover {
-          background: #45a049;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="icon">🚫</div>
-        <h1>Site Completely Blocked</h1>
-        <p>
-          <span class="site-name">${window.location.hostname}</span> is completely blocked while Focus Mode is on.
-        </p>
-        <p>This site is known to be highly distracting and doesn't support content evaluation.</p>
-        
-        <div class="motivational">
-          "The successful warrior is the average person with laser-like focus." - Bruce Lee
-        </div>
-        
-        <div style="margin-top: 30px;">
-          <button onclick="history.back()" class="turn-off-btn">Go Back</button>
-          <button onclick="window.close()">Close Tab</button>
-        </div>
-      </div>
-    </body>
-    </html>
+  // Wait for DOM to be ready before replacing content
+  if (!document.documentElement) {
+    setTimeout(showCompleteBlockMessage, 100)
+    return
+  }
+
+  // Clear existing content and set up the page structure
+  document.head.innerHTML = `
+    <title>Site Blocked - Focus Mode</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   `
+  
+  // Create and inject CSS link
+  const cssLink = document.createElement('link')
+  cssLink.rel = 'stylesheet'
+  cssLink.href = window.chrome.runtime.getURL('blocked-page.css')
+  document.head.appendChild(cssLink)
+  
+  // Set up the body with proper classes and content
+  document.body.className = 'blocked-page-body'
+  document.body.innerHTML = `
+    <div class="blocked-page-container">
+      <!-- Icon -->
+      <div class="blocked-page-icon blocked-page-icon-red">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"/><path d="M128,60a20,20,0,0,1,40,0v56" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M88,76V44a20,20,0,0,1,40,0v68" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M128,176a40,40,0,0,1,40-40V116a20,20,0,0,1,40,0v36a80,80,0,0,1-160,0V76a20,20,0,0,1,40,0v44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>l
+      </div>
+      
+      <!-- Header -->
+      <h1 class="blocked-page-title">Site Completely Blocked</h1>
+      
+      <!-- Content -->
+      <p class="blocked-page-description">
+        <span class="blocked-page-domain">${window.location.hostname}</span> is completely blocked while Focus Mode is active.
+      </p>
+      <p class="blocked-page-subtitle">This site is known to be highly distracting and doesn't support content evaluation.</p>
+      
+      <!-- Motivational Quote -->
+      <div class="blocked-page-quote">
+        <p class="blocked-page-quote-text">"The successful warrior is the average person with laser-like focus." - Bruce Lee</p>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="blocked-page-buttons">
+        <button id="closeTabBtn" class="blocked-page-btn blocked-page-btn-primary">
+          Close Tab
+        </button>
+      </div>
+    </div>
+  `
+  
+  // Add event listener for close tab button
+  setTimeout(() => {
+    const closeTabBtn = document.getElementById('closeTabBtn')
+    if (closeTabBtn) {
+      closeTabBtn.addEventListener('click', () => {
+        // Try multiple methods to close the tab
+        try {
+          // Method 1: Try window.close() first
+          window.close()
+          
+          // Method 2: If that doesn't work, send message to background script
+          setTimeout(() => {
+            if (window.chrome && window.chrome.runtime) {
+              window.chrome.runtime.sendMessage({
+                action: 'closeTab'
+              }).catch(() => {
+                // Method 3: If all else fails, navigate to about:blank
+                window.location.href = 'about:blank'
+              })
+            } else {
+              // Fallback: navigate to about:blank
+              window.location.href = 'about:blank'
+            }
+          }, 100)
+        } catch (error) {
+          console.error('Error closing tab:', error)
+          // Final fallback
+          window.location.href = 'about:blank'
+        }
+      })
+    }
+  }, 100)
 }
 
 // Get site toggle state for current domain
@@ -553,6 +618,12 @@ function getSiteToggleState(domain, siteToggles) {
 // Main function to check and handle focus mode
 async function handleFocusMode() {
   try {
+    // Ensure DOM is ready before proceeding
+    if (!document.body || !document.head) {
+      setTimeout(handleFocusMode, 100)
+      return
+    }
+    
     console.log("Handling focus mode for:", window.location.href)
 
     // Get focus mode state, focus areas, and site toggles
@@ -653,3 +724,4 @@ window.chrome.storage.onChanged.addListener((changes, namespace) => {
     handleFocusMode()
   }
 })
+
